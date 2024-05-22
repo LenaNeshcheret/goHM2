@@ -124,24 +124,33 @@ func initializeAllAnimalsInZoo() []Animal {
 
 func InitializeCages(animals []Animal) []Cage {
 	animalGroup1 := animals[:10]
+	animalInfo1 := selectAnimalsName(animalGroup1)
 	cage1 := Cage{
-		Name: "Cage 1",
-		AnimalsInfo: []string{"Dambo", "Jumbo", "Dottie", "Stretch", "Ziggy", "Kenny", "Rex", "Ozzy", "Bo-bo",
-			"Pandy", "Kobi"},
-		Animals: animalGroup1,
+		Name:        "Cage 1",
+		AnimalsInfo: animalInfo1,
+		Animals:     animalGroup1,
 	}
 	animalGroup2 := animals[11:18]
+	animalInfo2 := selectAnimalsName(animalGroup2)
 	cage2 := Cage{
 		Name:        "Cage 2",
-		AnimalsInfo: []string{"Waddles", "Pingu", "Bubbles", "Gigi", "Polly", "Sheldon", "Snowy"},
+		AnimalsInfo: animalInfo2,
 		Animals:     animalGroup2,
 	}
 	animalGroup3 := animals[19:]
+	animalInfo3 := selectAnimalsName(animalGroup3)
 	cage3 := Cage{
-		Name: "Cage 3",
-		// TODO collect names from animals arr
-		AnimalsInfo: []string{"Leo", "Teo", "Snappy", "Chet"},
+		Name:        "Cage 3",
+		AnimalsInfo: animalInfo3,
 		Animals:     animalGroup3,
 	}
 	return []Cage{cage1, cage2, cage3}
+}
+
+func selectAnimalsName(animals []Animal) []string {
+	var animalsName []string
+	for _, animal := range animals {
+		animalsName = append(animalsName, animal.Name)
+	}
+	return animalsName
 }
