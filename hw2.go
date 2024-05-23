@@ -14,9 +14,9 @@ func main() {
 
 	zoo := Zoo{Zookeeper: zookeeper, Cages: cages, Animals: animals}
 
-	randomEscape(&zoo)
+	zoo.randomEscape()
 
-	checkEscapedAnimals(zoo)
+	zoo.checkEscapedAnimals()
 }
 
 type Zookeeper struct {
@@ -43,7 +43,7 @@ type Zoo struct {
 }
 
 // Function to deleted animals (escaped animals)
-func randomEscape(zoo *Zoo) {
+func (zoo Zoo) randomEscape() {
 	for i := range zoo.Cages {
 		var remainingAnimals []Animal
 		for _, animal := range zoo.Cages[i].Animals {
@@ -58,28 +58,32 @@ func randomEscape(zoo *Zoo) {
 }
 
 // Function to check for escaped animals and print their details
-func checkEscapedAnimals(zoo Zoo) {
+func (zoo Zoo) checkEscapedAnimals() {
 	for _, cage := range zoo.Cages {
 		escaped := len(cage.AnimalsInfo) - len(cage.Animals)
 		if escaped == 0 {
 			fmt.Printf("All animals are in %s.\n", cage.Name)
-		} else {
-			fmt.Printf("Number of animals who have escaped from %s: %d\n", cage.Name, escaped)
-			fmt.Println("Escaped animals:")
-			for _, animalInfo := range cage.AnimalsInfo {
-				found := false
-				for _, animal := range cage.Animals {
-					if animal.Name == animalInfo {
-						found = true
-						break
-					}
-				}
-				if !found {
-					escapedAnimal := getAnimalByName(animalInfo, zoo.Animals)
-					fmt.Printf("Species: %s, Name: %s, Height: %.2f, Weight: %.2f\n",
-						escapedAnimal.Species, escapedAnimal.Name, escapedAnimal.Height, escapedAnimal.Weight)
-				}
+			continue
+		}
+		fmt.Printf("Number of animals who have escaped from %s: %d\n", cage.Name, escaped)
+		fmt.Println("Escaped animals:")
+		zoo.printEscapedAnimals(cage)
+	}
+}
+
+func (zoo Zoo) printEscapedAnimals(cage Cage) {
+	for _, animalInfo := range cage.AnimalsInfo {
+		found := false
+		for _, animal := range cage.Animals {
+			if animal.Name == animalInfo {
+				found = true
+				break
 			}
+		}
+		if !found {
+			escapedAnimal := getAnimalByName(animalInfo, zoo.Animals)
+			fmt.Printf("Species: %s, Name: %s, Height: %.2f, Weight: %.2f\n",
+				escapedAnimal.Species, escapedAnimal.Name, escapedAnimal.Height, escapedAnimal.Weight)
 		}
 	}
 }
