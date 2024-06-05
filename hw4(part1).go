@@ -8,20 +8,28 @@ import (
 )
 
 func main() {
-	file, err := os.Open("sky.txt") //open the file
+
+	file, err := openFile()
 	if err != nil {
-		fmt.Println("Error opening file:", err)
+		fmt.Println("Error open file:", err)
 		return
 	}
-	defer file.Close()
+	textLines := readData(file)
+	input := inputWord(err)
 
+	result := checkPhrase(textLines, input)
+	printResult(result)
+}
+
+func readData(file *os.File) []string {
 	scanner := bufio.NewScanner(file)
 	var textLines []string
 	for scanner.Scan() {
 		line := scanner.Text()
 		textLines = append(textLines, line)
-		//substrings := strings.Split(line, ",")
-		//textLines = append(textLines, substrings...)
+	}
+	if err := scanner.Err(); err != nil {
+		fmt.Println("Error reading from file:", err)
 	}
 	fmt.Println("Input text")
 	fmt.Println(textLines)
@@ -29,9 +37,34 @@ func main() {
 	if err := scanner.Err(); err != nil {
 		fmt.Println("Error reading from file:", err)
 	}
+	return textLines
+}
 
-	fmt.Println("Strings that contain the search string:")
-	fmt.Println(checkPhrase(textLines, "sky was"))
+func openFile() (*os.File, error) {
+	scannerFile := bufio.NewScanner(os.Stdin)
+	fmt.Print("Enter the full path to the target file: ")
+	scannerFile.Scan()
+	filePath := scannerFile.Text()
+
+	file, err := os.Open(filePath)
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		fmt.Println("Opened default file")
+		filePath = "/Users/bigmag/Documents/projects/untitled/sky.txt"
+		file, err = os.Open(filePath)
+		return file, err
+	}
+	defer file.Close()
+	fmt.Println("File opened successfully:", filePath)
+	return file, nil
+}
+
+func inputWord(err error) string {
+	fmt.Print("Enter word which you want find:")
+	var input string
+	_, err = fmt.Scanln(&input)
+	fmt.Println("You entered:", input)
+	return input
 }
 
 func checkPhrase(textLines []string, phrase string) []string {
@@ -43,4 +76,17 @@ func checkPhrase(textLines []string, phrase string) []string {
 		}
 	}
 	return textLineWhichRepeated
+}
+
+func printResult(textLines []string) {
+
+	if len(textLines) == 0 {
+		fmt.Printf("Word doesn't exist \n")
+		return
+	}
+	fmt.Printf("Word exists in the lines:\n")
+	for _, textLine := range textLines {
+		fmt.Println(textLine)
+	}
+
 }
