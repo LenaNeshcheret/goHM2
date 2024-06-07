@@ -50,7 +50,7 @@ func openFile() (*os.File, error) {
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 		fmt.Println("Opened default file")
-		filePath = "/Users/bigmag/Documents/projects/untitled/sky.txt"
+		filePath = "../untitled/sky.txt"
 		file, err = os.Open(filePath)
 		return file, err
 	}
