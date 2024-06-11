@@ -8,9 +8,19 @@ import (
 )
 
 func main() {
-	//open the file
-	///Users/bigmag/Documents/projects/untitled/testHw5.txt
+	file, err := openFile()
+	if err != nil {
+		fmt.Println("Error open file:", err)
+		return
+	}
+	textLines := readData(file)
 
+	mapByWords := initTextByWords(textLines)
+	input := inputWord(err)
+	printAllLinesByWorld(input, mapByWords)
+}
+
+func openFile() (*os.File, error) {
 	scannerFile := bufio.NewScanner(os.Stdin)
 	fmt.Print("Enter the full path to the target file: ")
 	scannerFile.Scan()
@@ -20,15 +30,16 @@ func main() {
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 		fmt.Println("Opened default file")
-		filePath = "/Users/bigmag/Documents/projects/untitled/testHw5.txt"
+		filePath = "testHw5.txt"
 		file, err = os.Open(filePath)
-		if err != nil {
-			return
-		}
+		return file, err
 	}
 	defer file.Close()
 	fmt.Println("File opened successfully:", filePath)
+	return file, nil
+}
 
+func readData(file *os.File) []string {
 	scanner := bufio.NewScanner(file)
 	var textLines []string
 	for scanner.Scan() {
@@ -38,15 +49,9 @@ func main() {
 	if err := scanner.Err(); err != nil {
 		fmt.Println("Error reading from file:", err)
 	}
-
-	mapByWords := initTextByWords(textLines)
-	//for key, value := range mapByWords {
-	//	fmt.Printf("Key: %s, Value: %s\n", key, value)
-	//}
-
-	input := inputWord(err)
-	printAllLinesByWorld(input, mapByWords)
-
+	fmt.Println("Input text")
+	fmt.Println(textLines)
+	return textLines
 }
 
 func inputWord(err error) string {
