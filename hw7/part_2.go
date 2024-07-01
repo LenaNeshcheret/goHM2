@@ -3,20 +3,25 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	"time"
+	"sync"
 )
 
 func main() {
 	numbersChannel := make(chan []int)
 	minMaxChannel := make(chan [2]int)
+	var wg sync.WaitGroup
 
-	go generateNumbers(5, 300, 10, minMaxChannel, numbersChannel)
-	go findMixMax(numbersChannel, minMaxChannel)
-	time.Sleep(10 * time.Second)
+	wg.Add(2)
+
+	go generateNumbers(5, 300, 10, minMaxChannel, numbersChannel, &wg)
+	go findMinMax(numbersChannel, minMaxChannel, &wg)
+
+	wg.Wait()
 }
 
-func generateNumbers(a int, b int, amount int, input chan [2]int, output chan []int) {
-	fmt.Printf("Generate %d numbers between [ %d,  %d ] \n", amount, a, b)
+func generateNumbers(a int, b int, amount int, minMaxChan chan [2]int, output chan []int, wg *sync.WaitGroup) {
+	defer wg.Done()
+	fmt.Printf("Generate %d numbers between [ %d, %d ] \n", amount, a, b)
 	numbers := make([]int, amount)
 
 	for i := 0; i < amount; i++ {
@@ -24,15 +29,21 @@ func generateNumbers(a int, b int, amount int, input chan [2]int, output chan []
 		fmt.Printf("%d, ", numbers[i])
 	}
 	output <- numbers
-	defer close(output)
-	for result := range input {
-		fmt.Printf("\nMAX = %d, \nMIN = %d \n", result[1], result[0])
-	}
 
+	minMax := <-minMaxChan
+	fmt.Printf("\nMAX = %d, \nMIN = %d \n", minMax[1], minMax[0])
+
+	close(output)
+	close(minMaxChan)
 }
-func findMixMax(input chan []int, output chan [2]int) {
+
+func findMinMax(input chan []int, output chan [2]int, wg *sync.WaitGroup) {
+	defer wg.Done()
 	numbers := <-input
-	minVal, maxVal := numbers[0], numbers[1]
+	if len(numbers) == 0 {
+		return
+	}
+	minVal, maxVal := numbers[0], numbers[0]
 
 	for _, num := range numbers {
 		if num < minVal {
@@ -43,5 +54,4 @@ func findMixMax(input chan []int, output chan [2]int) {
 		}
 	}
 	output <- [2]int{minVal, maxVal}
-	close(output)
 }

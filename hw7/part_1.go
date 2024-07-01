@@ -3,22 +3,38 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"sync"
 	"time"
 )
 
 func main() {
 	numChan := make(chan int)
 	avgChan := make(chan float64)
+	var wg sync.WaitGroup
 
-	go generateRandomNumbers(numChan)
-	go calculateAverage(numChan, avgChan)
-	go printAverage(avgChan)
+	wg.Add(3)
 
-	time.Sleep(10 * time.Second)
+	go func() {
+		defer wg.Done()
+		generateRandomNumbers(numChan)
+		close(numChan)
+	}()
+	go func() {
+		defer wg.Done()
+		calculateAverage(numChan, avgChan)
+		close(avgChan)
+	}()
+	go func() {
+		defer wg.Done()
+		printAverage(avgChan)
+	}()
+
+	wg.Wait()
 }
 
 func generateRandomNumbers(intCh chan int) {
-	for {
+
+	for i := 0; i < 10; i++ {
 		num := rand.Intn(100)
 		fmt.Printf("%d, ", num)
 		intCh <- num
